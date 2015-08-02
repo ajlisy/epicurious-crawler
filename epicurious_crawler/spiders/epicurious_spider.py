@@ -10,6 +10,13 @@ class EpiSpider(scrapy.Spider):
     ]
 
     def parse(self,response):
+        relatedContent=response.xpath("//*[contains(@class,'relatedContent')]/div[@class='recipes']/ul/li/a/@href")
+        for href in relatedContent:
+            url=response.urljoin(href.extract())
+            yield scrapy.Request(url,callback=self.parse_recipe)
+
+
+    def parse_recipe(self,response):
         item=Recipe()
         item['title']=response.xpath("//title/text()").re('(.+) \| Epic.*')
         item['ingredientsArray']=[]
